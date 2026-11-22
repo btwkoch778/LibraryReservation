@@ -1,0 +1,402 @@
+{
+  "info": {
+    "name": "Library Reservations API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7142"
+    }
+  ],
+  "item": [
+    {
+      "name": "Rezervasiya yarat",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/reservations",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookTitle\": \"Dədə Qorqud\",\n  \"readerName\": \"Aysel Əliyeva\",\n  \"libraryBranch\": \"Mərkəzi\",\n  \"pickupDate\": \"{{pickupDate}}\",\n  \"copyCount\": 2\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const d = new Date();",
+              "d.setUTCDate(d.getUTCDate() + 7);",
+              "pm.collectionVariables.set(\"pickupDate\", d.toISOString().slice(0, 10));"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.test(\"Cavabın məzmunu\", () => {",
+              "const r = pm.response.json();",
+              "pm.expect(r.id).to.be.above(0);",
+              "pm.expect(pm.response.headers.get(\"Location\")).to.include(\"/api/reservations/\" + r.id);",
+              "pm.collectionVariables.set(\"id\", r.id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bütün rezervasiyalar",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservations"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cavabın məzmunu\", () => {",
+              "pm.expect(pm.response.json().map(r => r.id)).to.include(Number(pm.collectionVariables.get(\"id\")));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ID ilə tap",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservations/{{id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cavabın məzmunu\", () => {",
+              "pm.expect(pm.response.json().bookTitle).to.equal(\"Dədə Qorqud\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Axtarış, filial, gələcək tarix və çoxsaylı nüsxələr",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservations?title=Qorqud&branch=M%C9%99rk%C9%99zi&futureOnly=true&multipleCopies=true&sort=asc"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cavabın məzmunu\", () => {",
+              "pm.expect(pm.response.json().map(r => r.id)).to.include(Number(pm.collectionVariables.get(\"id\")));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tarixə görə azalan sıra",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservations?sort=desc"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cavabın məzmunu\", () => {",
+              "const dates = pm.response.json().map(r => r.pickupDate);",
+              "pm.expect(dates).to.deep.equal([...dates].sort().reverse());",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "JSON ixracı",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservations/export"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cavabın məzmunu\", () => {",
+              "pm.expect(pm.response.json().map(r => r.id)).to.include(Number(pm.collectionVariables.get(\"id\")));",
+              "pm.expect(pm.response.headers.get(\"Content-Disposition\")).to.include(\"reservations.json\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Boş ad",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/reservations",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookTitle\": \"  \",\n  \"readerName\": \"Aysel Əliyeva\",\n  \"libraryBranch\": \"Mərkəzi\",\n  \"pickupDate\": \"{{pickupDate}}\",\n  \"copyCount\": 2\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Keçmiş tarix",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/reservations",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookTitle\": \"Dədə Qorqud\",\n  \"readerName\": \"Aysel Əliyeva\",\n  \"libraryBranch\": \"Mərkəzi\",\n  \"pickupDate\": \"2000-01-01\",\n  \"copyCount\": 2\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sıfır nüsxə",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/reservations",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookTitle\": \"Dədə Qorqud\",\n  \"readerName\": \"Aysel Əliyeva\",\n  \"libraryBranch\": \"Mərkəzi\",\n  \"pickupDate\": \"{{pickupDate}}\",\n  \"copyCount\": 0\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rezervasiyanı yenilə",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/api/reservations/{{id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookTitle\": \"Dədə Qorqud\",\n  \"readerName\": \"Aysel Əliyeva\",\n  \"libraryBranch\": \"Mərkəzi\",\n  \"pickupDate\": \"{{pickupDate}}\",\n  \"copyCount\": 1\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Yenilənmiş nüsxə sayını yoxla",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservations/{{id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cavabın məzmunu\", () => {",
+              "pm.expect(pm.response.json().copyCount).to.equal(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rezervasiyanı sil",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/reservations/{{id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Silinmiş rezervasiyanı yoxla",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/reservations/{{id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mövcud olmayan rezervasiyanı yenilə",
+      "request": {
+        "method": "PUT",
+        "url": "{{baseUrl}}/api/reservations/{{id}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookTitle\": \"Dədə Qorqud\",\n  \"readerName\": \"Aysel Əliyeva\",\n  \"libraryBranch\": \"Mərkəzi\",\n  \"pickupDate\": \"{{pickupDate}}\",\n  \"copyCount\": 2\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mövcud olmayan rezervasiyanı sil",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/api/reservations/{{id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OpenAPI sənədi",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/swagger/v1/swagger.json"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Cavabın məzmunu\", () => {",
+              "pm.expect(pm.response.json().paths).to.have.property(\"/api/reservations\");",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

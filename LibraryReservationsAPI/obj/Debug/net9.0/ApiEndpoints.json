@@ -1,0 +1,147 @@
+[
+  {
+    "ContainingType": "LibraryReservationsAPI.Controllers.ReservationsController",
+    "Method": "GetAll",
+    "RelativePath": "api/reservations",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "title",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "branch",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "futureOnly",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "multipleCopies",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "sort",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LibraryReservationsAPI.Models.Reservation[]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LibraryReservationsAPI.Controllers.ReservationsController",
+    "Method": "Create",
+    "RelativePath": "api/reservations",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "LibraryReservationsAPI.Models.ReservationRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LibraryReservationsAPI.Models.Reservation",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 201
+      }
+    ]
+  },
+  {
+    "ContainingType": "LibraryReservationsAPI.Controllers.ReservationsController",
+    "Method": "GetById",
+    "RelativePath": "api/reservations/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LibraryReservationsAPI.Models.Reservation",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LibraryReservationsAPI.Controllers.ReservationsController",
+    "Method": "Update",
+    "RelativePath": "api/reservations/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "LibraryReservationsAPI.Models.ReservationRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryReservationsAPI.Controllers.ReservationsController",
+    "Method": "Delete",
+    "RelativePath": "api/reservations/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryReservationsAPI.Controllers.ReservationsController",
+    "Method": "Export",
+    "RelativePath": "api/reservations/export",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  }
+]
